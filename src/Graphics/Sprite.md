@@ -24,12 +24,16 @@
 
 #### Crop
 ```haskell
+
+{-|
+  Defines a rectangular area to be cropped
+
+
 A typical use would be:
 
-```
+
 -- Creates a Crop for Sprites of size 32x32
 spriteCrop left top = { left = left, top = top, width = 32, height = 32 }
-``
 
  -}
 type Crop =
@@ -48,7 +52,10 @@ crops : Crop -> (Crop -> Crop) -> Int -> [Crop]
   Given the starting Crop, a function that determines the
   next Crop in a sequence, and the number of elements in
   a sequence, returns a list containing those crops.
-
+  
+A typical use would be:  
+  
+```haskell
 -- An explosion sprite starts on a sprite sheet at position 0 98
 explosionStart = spriteCrop 0 98
 
@@ -56,6 +63,7 @@ explosionStart = spriteCrop 0 98
 -- each frame is laid out left to right with 2 pixels of padding between
 -- each frame
 explosionCrops = crops explosionStart (right 2) 5
+```
 
 Two helper functions exist for selecting sequences of franes going right and down.
 These functions take in a padding amount to skip between each frame.
@@ -94,13 +102,14 @@ sprite : Element -> [Crop] -> Sprite
 
 A typical use would be:
 
-```
+```haskell
 -- Reads in a sprite sheet
 sheet = image 196 224 "galagasheet.png"
 
 -- Create a Explosion sprite containing 5 frames
+-- explosionCrops is defined above
 explosion = sprite sheet explosionCrops
-
+```
 
 ```haskell
 spriteFromSequence : String -> String -> Int -> Int -> Int -> Sprite
