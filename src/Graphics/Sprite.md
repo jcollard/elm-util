@@ -5,17 +5,17 @@
 
 #### Types
 
-  * (Image)[#image]
-  * (Sprite)[#sprite]
-  * (Animator)[#animator]
+  * [Image](#image)
+  * [Sprite](#sprite)
+  * [Animator](#animator)
 
 #### Functions
 
-  * (sprite)[#sprite]
-  * (animator)[#animator]
-  * (process)[#process]
-  * (processMany)[#processMany]
-  * (draw)[#draw]x
+  * [sprite](#sprite)
+  * [animator](#animator)
+  * [process](#process)
+  * [processMany](#processMany)
+  * [draw](#draw)
 
 ### Sprites
 
