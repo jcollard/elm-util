@@ -1,6 +1,10 @@
-module Graphics.Sprite(Image, 
-                       Sprite,
+module Graphics.Sprite(Sprite,
+                       Crop,
+                       right,
+                       down,
+                       crops,
                        sprite,
+                       spriteFromSequence,
                        animator,
                        process,
                        processMany,
@@ -13,6 +17,7 @@ module Graphics.Sprite(Image,
 
  -}
 
+import Graphics.Collage
 import Dict
 
 {-|
@@ -33,6 +38,90 @@ type Sprite =
   }
 
 {-|
+  Defines a rectangular area to be cropped
+
+
+A typical use would be:
+
+```
+-- Creates a Crop for Sprites of size 32x32
+spriteCrop left top = { left = left, top = top, width = 32, height = 32 }
+``
+
+ -}
+type Crop =
+  { top    : Int
+  , left   : Int
+  , width  : Int
+  , height : Int
+  }
+
+{-|
+  Given the starting Crop, a function that determines the
+  next Crop in a sequence, and the number of elements in
+  a sequence, returns a list containing those crops.
+
+-- An explosion sprite starts on a sprite sheet at position 0 98
+explosionStart = spriteCrop 0 98
+
+-- Creates a list of crops for cropping out the explosion sprite where
+-- each frame is laid out left to right with 2 pixels of padding between
+-- each frame
+explosionCrops = crops explosionStart (right 2) 5
+
+ -}
+crops : Crop -> (Crop -> Crop) -> Int -> [Crop]
+crops crop adjust n = 
+  case n of
+    0 -> []
+    _ -> crop :: (crops (adjust crop) adjust (n-1))
+
+
+{-|
+  Returns the Crop that is directly to the right of the one provided.
+ -}
+right : Int -> Crop -> Crop
+right pad crop = {crop | left <- crop.left + crop.width + pad }
+
+{-|
+  Returns the Crop that is directly beneath the one provided.
+ -}
+down : Int -> Crop -> Crop
+down pad crop = {crop | top <- crop.top + crop.height + pad}
+
+
+{-|
+  Given an element to use as a Sprite Sheet and a list
+  of crops to use as frames, creates a Sprite where each
+  frame is cropped from the specified Element.
+
+A typical use would be:
+
+```
+-- Reads in a sprite sheet
+sheet = image 196 224 "galagasheet.png"
+
+-- Create a Explosion sprite containing 5 frames
+explosion = sprite sheet explosionCrops
+
+ -}
+sprite : Element -> [Crop] -> Sprite
+sprite sheet crops = 
+  let images = spriteHelper (toForm sheet) (sizeOf sheet) crops in
+  toSprite images
+
+spriteHelper : Form -> (Int, Int) -> [Crop] -> [Image]
+spriteHelper sheet (width, height) crops =
+  case crops of
+    [] -> []
+    (c::cs) -> 
+      let translate = (toFloat (-c.left) + (toFloat (width-c.width)/2), 
+                       toFloat c.top - (toFloat (height - c.height)/2) - 0.5 )
+          cropped = collage c.width c.height [move translate sheet]
+          image = { image = cropped, width = c.width, height = c.height }
+      in image :: (spriteHelper sheet (width, height) cs)
+
+{-|
   Given an extension, baseName, number of frames, a width, and a height,
   creates a Sprite. For example:
 
@@ -40,7 +129,7 @@ type Sprite =
 -- Creates a Sprite containing frames made up of images
 -- named explode0.png, explode1.png, explode2.png, explode3.png, and explode4.png
 explosion : Sprite
-explosion = sprite "png" "explode" 5 32 32
+explosion = spriteFromSequence "png" "explode" 5 32 32
 ```
 
   If the provided number of frames is 1 then a number tag is not added
@@ -50,12 +139,12 @@ explosion = sprite "png" "explode" 5 32 32
 -- Creates a Sprite containing exactly one frame made of the image
 -- named ship.jpg
 ship : Sprite
-ship = sprite "jpg" "ship" 1 16 16
+ship = spriteFromSequence "jpg" "ship" 1 16 16
 ```
 
  -}
-sprite : String -> String -> Int -> Int -> Int -> Sprite
-sprite ext baseName parts width height = toSprite <| map (toImage width height) (createList ext baseName parts)
+spriteFromSequence : String -> String -> Int -> Int -> Int -> Sprite
+spriteFromSequence ext baseName parts width height = toSprite <| map (toImage width height) (createList ext baseName parts)
 
 toImage : Int -> Int -> String -> Image
 toImage width height src = 

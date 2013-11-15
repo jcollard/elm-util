@@ -3,35 +3,73 @@
   Graphics.Sprite provides a basic framework for creating and animating
   sprites made from multiple images.
 
-#### Types
+#### Cropping
 
-  * [Image](#image)
+  * [Crop](#crop)
+  * [crops](#crops)
+
+#### Sprites
+
   * [Sprite](#sprite)
-  * [Animator](#animator)
-
-#### Functions
-
   * [sprite](#sprite-1)
+  * [spriteFromSequence](#spritefromsequence)
+
+#### Animating Sprites
   * [animator](#animator-1)
   * [process](#process)
   * [processMany](#processMany)
   * [draw](#draw)
 
-### Sprites
+### Cropping
 
-#### Image
-
+#### Crop
 ```haskell
-{-|
-  An Image stores an Element and its dimensions
- -}
+A typical use would be:
 
-type Image = 
-  { image  : Element
+```
+-- Creates a Crop for Sprites of size 32x32
+spriteCrop left top = { left = left, top = top, width = 32, height = 32 }
+``
+
+ -}
+type Crop =
+  { top    : Int
+  , left   : Int
   , width  : Int
   , height : Int
   }
 ```
+
+#### crops
+```haskell
+crops : Crop -> (Crop -> Crop) -> Int -> [Crop]
+```
+
+  Given the starting Crop, a function that determines the
+  next Crop in a sequence, and the number of elements in
+  a sequence, returns a list containing those crops.
+
+-- An explosion sprite starts on a sprite sheet at position 0 98
+explosionStart = spriteCrop 0 98
+
+-- Creates a list of crops for cropping out the explosion sprite where
+-- each frame is laid out left to right with 2 pixels of padding between
+-- each frame
+explosionCrops = crops explosionStart (right 2) 5
+
+Two helper functions exist for selecting sequences of franes going right and down.
+These functions take in a padding amount to skip between each frame.
+
+```haskell
+--  Returns the Crop that is directly to the right of the one provided.
+right : Int -> Crop -> Crop
+
+-- Returns the Crop that is directly beneath the one provided.
+down : Int -> Crop -> Crop
+```
+
+
+### Sprites
 
 #### Sprite
 
@@ -47,7 +85,25 @@ type Sprite =
 
 #### sprite
 ```haskell
-sprite : String -> String -> Int -> Int -> Int -> Sprite
+sprite : Element -> [Crop] -> Sprite
+```
+
+  Given an element to use as a Sprite Sheet and a list
+  of crops to use as frames, creates a Sprite where each
+  frame is cropped from the specified Element.
+
+A typical use would be:
+
+```
+-- Reads in a sprite sheet
+sheet = image 196 224 "galagasheet.png"
+
+-- Create a Explosion sprite containing 5 frames
+explosion = sprite sheet explosionCrops
+
+
+```haskell
+spriteFromSequence : String -> String -> Int -> Int -> Int -> Sprite
 ```
 
   Given an extension, baseName, number of frames, a width, and a height,

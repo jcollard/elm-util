@@ -4,3 +4,6 @@
 *.elmi
 *.elmo
 .*
+build
+cache
+Makefile
