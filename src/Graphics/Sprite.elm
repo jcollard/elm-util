@@ -1,4 +1,17 @@
-module Graphics.Sprite where
+module Graphics.Sprite(Image, 
+                       Sprite,
+                       sprite,
+                       animator,
+                       process,
+                       processMany,
+                       draw) where
+
+{-|
+
+  Provides a basic framework for creating and animating sprites made from
+  multiple images.
+
+ -}
 
 import Dict
 
@@ -18,6 +31,59 @@ type Sprite =
   { length : Int
   , frames : Dict.Dict Int Image
   }
+
+{-|
+  Given an extension, baseName, number of frames, a width, and a height,
+  creates a Sprite. For example:
+
+```
+-- Creates a Sprite containing frames made up of images
+-- named explode0.png, explode1.png, explode2.png, explode3.png, and explode4.png
+explosion : Sprite
+explosion = sprite "png" "explode" 5 32 32
+```
+
+  If the provided number of frames is 1 then a number tag is not added
+  to the end of each file name. For example:
+
+```
+-- Creates a Sprite containing exactly one frame made of the image
+-- named ship.jpg
+ship : Sprite
+ship = sprite "jpg" "ship" 1 16 16
+```
+
+ -}
+sprite : String -> String -> Int -> Int -> Int -> Sprite
+sprite ext baseName parts width height = toSprite <| map (toImage width height) (createList ext baseName parts)
+
+toImage : Int -> Int -> String -> Image
+toImage width height src = 
+  { 
+    image = image width height src,
+    width = width,
+    height = height
+  }
+
+toSprite : [Image] -> Sprite
+toSprite imgs = 
+  let n = length imgs in
+  let assocs = zip [0..n] imgs in
+  { 
+    length = n,
+    frames = Dict.fromList assocs
+  }
+
+createList : String -> String -> Int -> [String]
+createList ext baseName n = 
+  if n > 1 then createList' ext baseName n 0
+  else [baseName ++ "." ++ ext]
+
+createList' : String -> String -> Int -> Int -> [String]
+createList' ext baseName ct n = 
+  case ct of
+    0 -> []
+    _ -> (baseName ++ (show n) ++ "." ++ ext) :: (createList' ext baseName (ct-1) (n+1))
 
 type Animator =
     { sprite : Sprite
