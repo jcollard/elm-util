@@ -11,8 +11,8 @@
 
 #### Functions
 
-  * [sprite](#sprite)
-  * [animator](#animator)
+  * [sprite](#sprite-1)
+  * [animator](#animator-1)
   * [process](#process)
   * [processMany](#processMany)
   * [draw](#draw)
