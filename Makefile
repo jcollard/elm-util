@@ -17,7 +17,7 @@ all: compile test examples
 
 test: tests
 
-examples: moveAnimationExample composedAnimationExample examples_resources
+examples: animationExamples examples_resources
 
 resources: build/$(SRC)/$(RESOURCES)
 build/$(SRC)/$(RESOURCES): $(RESOURCES)
@@ -80,6 +80,7 @@ $(Tests.html): $(Tests.elm) $(AnimationTest.elm) $(Animation.elm)
 	$(CC) --runtime=$(RTS) $(BUILD_TEST_FLAGS) $(Tests.elm)
 
 
+animationExamples: easeAnimationExample moveAnimationExample composedAnimationExample
 
 # Move Animation Example
 MoveAnimationExample = $(EXAMPLES)/Graphics/Animation/MoveAnimationExample
@@ -90,7 +91,17 @@ moveAnimationExample: $(MoveAnimationExample.html)
 $(MoveAnimationExample.html): $(MoveAnimationExample.elm) $(Animation.elm)
 	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(MoveAnimationExample.elm)
 
-# Move Animation Example
+# Ease Animation Example
+EaseAnimationExample = $(EXAMPLES)/Graphics/Animation/EaseAnimationExample
+EaseAnimationExample.html = build/$(EaseAnimationExample).html
+EaseAnimationExample.elm = $(EaseAnimationExample).elm
+
+easeAnimationExample: $(EaseAnimationExample.html)
+$(EaseAnimationExample.html): $(EaseAnimationExample.elm) $(Animation.elm)
+	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(EaseAnimationExample.elm)
+
+
+# Composed Animation Example
 ComposedAnimationExample = $(EXAMPLES)/Graphics/Animation/ComposedAnimationExample
 ComposedAnimationExample.html = build/$(ComposedAnimationExample).html
 ComposedAnimationExample.elm = $(ComposedAnimationExample).elm
