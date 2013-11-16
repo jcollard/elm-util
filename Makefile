@@ -11,6 +11,8 @@ TEST_FLAGS = $(FLAGS) --src-dir=$(TEST)
 BUILD_TEST_FLAGS = $(BUILD_FLAGS) --src-dir=$(TEST)
 
 
+all: compile test examples
+
 compile: sprite animation test_framework resources
 
 test: tests
@@ -91,5 +93,7 @@ $(MoveAnimationExample.html): $(MoveAnimationExample.elm) $(Animation.elm)
 
 
 clean:
+	find . -name "*.elmi" -delete
+	find . -name "*.elmo" -delete
 	rm build/ -rf
 	rm cache/ -rf
