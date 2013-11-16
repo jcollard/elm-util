@@ -1,4 +1,4 @@
-module Graphics.AnimationTest(report) where
+module Graphics.AnimationTest(tests) where
 
 import open Graphics.Animation
 import Time
@@ -78,4 +78,5 @@ moveAnimationTests = [testBeforeStartLocation0,
                       testAtEnd0,
                       testAtEnd1]
                      
-report = T.report moveAnimationTests
+tests = moveAnimationTests                     
+--report = T.report moveAnimationTests

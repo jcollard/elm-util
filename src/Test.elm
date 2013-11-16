@@ -5,7 +5,8 @@ module Test(Test,
             assert,
             assertEquals,
             assertWithTolerance,
-            report) where
+            report,
+            fails) where
 
 data Result = Success | Fail String
 
@@ -38,7 +39,7 @@ fails tests =
         case t.result of
           Success -> fails ts
           Fail _ -> t :: fails ts
-          
+
 pretty : Test -> Element
 pretty t =
   case t.result of
