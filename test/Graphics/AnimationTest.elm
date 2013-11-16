@@ -21,6 +21,7 @@ duration = second
 moveAnimation : MoveAnimation
 moveAnimation = move loc0 loc1 duration
 
+
 renderable : Renderable
 renderable = { element = group [], location = origin }
 
@@ -79,5 +80,33 @@ moveAnimationTests = [testBeforeStartLocation0,
                       testAtEnd0,
                       testAtEnd1]
                      
-tests = moveAnimationTests                     
---report = T.report moveAnimationTests
+loc2 = loc (50, 50)
+
+duration2 = 2*second
+moveAnimation2 = move loc1 loc2 duration2
+composedAnimation = moveAnimation `compose` moveAnimation2
+animation2 = composedAnimation.animate startTime renderable
+
+testCompositionDuration =
+  test "The composition of two animations should have a duration equal to the sum of the two animations durations." <|
+  let expectedDuration = duration + duration2
+      actualDuration = composedAnimation.duration
+  in assertEquals expectedDuration actualDuration
+                     
+testComposedStart =
+  test "The composition of two animations should start with the first animations start." <|
+  let expectedStart = loc0
+      actualStart = composedAnimation.start
+  in assertEquals expectedStart actualStart
+     
+testComposedEnd =
+  test "The composition of two animations should end with the second animations end." <|
+  let expectedEnd = loc2
+      actualEnd = composedAnimation.end
+  in assertEquals expectedEnd actualEnd
+  
+composeTests = [testCompositionDuration,
+                testComposedStart,
+                testComposedEnd]     
+     
+tests = moveAnimationTests ++ composeTests       

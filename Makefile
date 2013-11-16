@@ -11,13 +11,13 @@ TEST_FLAGS = $(FLAGS) --src-dir=$(TEST)
 BUILD_TEST_FLAGS = $(BUILD_FLAGS) --src-dir=$(TEST)
 
 
-all: compile test examples
-
 compile: sprite animation test_framework resources
+
+all: compile test examples
 
 test: tests
 
-examples: moveAnimationExample examples_resources
+examples: moveAnimationExample composedAnimationExample examples_resources
 
 resources: build/$(SRC)/$(RESOURCES)
 build/$(SRC)/$(RESOURCES): $(RESOURCES)
@@ -89,6 +89,15 @@ MoveAnimationExample.elm = $(MoveAnimationExample).elm
 moveAnimationExample: $(MoveAnimationExample.html)
 $(MoveAnimationExample.html): $(MoveAnimationExample.elm) $(Animation.elm)
 	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(MoveAnimationExample.elm)
+
+# Move Animation Example
+ComposedAnimationExample = $(EXAMPLES)/Graphics/Animation/ComposedAnimationExample
+ComposedAnimationExample.html = build/$(ComposedAnimationExample).html
+ComposedAnimationExample.elm = $(ComposedAnimationExample).elm
+
+composedAnimationExample: $(ComposedAnimationExample.html)
+$(ComposedAnimationExample.html): $(ComposedAnimationExample.elm) $(Animation.elm)
+	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(ComposedAnimationExample.elm)
 
 
 
