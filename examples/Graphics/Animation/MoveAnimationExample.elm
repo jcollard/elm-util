@@ -68,12 +68,12 @@ animateTriangle = animation2.animate (2*second) triangle
 
 -- A time varying function that renders each element
 -- at the specified time
-render : Time -> Element
-render t = 
+display : Time -> Element
+display t = 
   let ball' = animateBall t
       square' = animateSquare t
       triangle' = animateTriangle t
-  in draw [ball', square', triangle']
+  in render 500 500 [ball', square', triangle']
 
 
-main = render <~ foldp (+) 0 (fps 50)  
+main = display <~ foldp (+) 0 (fps 50)  

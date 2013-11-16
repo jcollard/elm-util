@@ -64,11 +64,11 @@ animateTriangle = composedAnimation1.animate (1*second) triangle
 
 
 -- A time varying function that renders the animations
-render : Time -> Element
-render t = 
+display : Time -> Element
+display t = 
   let ball' = animateBall t
       triangle' = animateTriangle t
-  in draw [triangle', ball']
+  in render 500 500 [triangle', ball']
 
 
-main = render <~ foldp (+) 0 (fps 50)  
+main = display <~ foldp (+) 0 (fps 50)  
