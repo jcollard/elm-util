@@ -142,6 +142,10 @@ Using `move` and `moveMany`:
  * [Source](https://github.com/jcollard/elm-util/blob/master/examples/Graphics/Animation/MoveAnimationExample.elm)
  * [Running](http://people.cs.umass.edu/~jcollard/examples/Graphics/Animation/MoveAnimationExample.html)
 
+Using `ease`:
+ * [Source](https://github.com/jcollard/elm-util/blob/master/examples/Graphics/Animation/EaseAnimationExample.elm)
+ * [Running](http://people.cs.umass.edu/~jcollard/examples/Graphics/Animation/EaseAnimationExample.html)
+
 Using `compose` and `composeMany`:
  * [Source](https://github.com/jcollard/elm-util/blob/master/examples/Graphics/Animation/ComposedAnimationExample.elm)
  * [Running](http://people.cs.umass.edu/~jcollard/examples/Graphics/Animation/ComposedAnimationExample.html)
