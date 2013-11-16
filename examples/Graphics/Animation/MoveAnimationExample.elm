@@ -45,13 +45,13 @@ square =
 animateSquare : Time -> Renderable
 animateSquare = animation1.animate (1*second) square
 
--- Creates an Animation from (150, -150) to (-150, 0)
--- over an interval of 500 milliseconds
+-- Creates an Animation over the path
+-- (150, -150) -> (-150, 100) -> (0,0) -> (-100, 1100)
+-- over an interval of 1500 milliseconds
 animation2 : MoveAnimation
 animation2 = 
-  let start = loc (150, -150)
-      end = loc (-150, 0)
-  in move start end (500*millisecond)
+  let locations = map loc [(150, -150), (-150, 100), (0, 0), (-100, -100)]
+  in moveMany locations (1500*millisecond)
      
 -- A Green Triangle
 triangle : Renderable
