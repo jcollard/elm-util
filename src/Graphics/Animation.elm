@@ -105,20 +105,29 @@ totalDistance ls =
   in val
                        
 {-|     
-  An EasingFunction takes in the percentage [0,1] of time that has passed and
-  returns the percentage of travel that has been completed.
+  An EasingFunction takes in the percentage of time that has passed (0 = 0%, 
+  1 = 100%), and returns the percentage of travel that has been completed.
  -}
 type EasingFunction = Float -> Float
 
-easingFunction f t =
-  if t < 0 then 0 else if t > 1 then 1 else (f t)
+{-|
+  Given a lower and upper bound for input time, creates an easing function
+  where time specified outside the range is treated as either a 0 or 1.
+ -}
+makeEasing : (Float, Float) -> (number -> number) -> EasingFunction
+makeEasing (min, max) f t =
+  if t < min then 0 else if t > max then 1 else (f t)
 
 linear : EasingFunction
-linear = easingFunction id
+linear = makeEasing (0, 1) id
 
 sine : EasingFunction
-sine = easingFunction (\t -> (sin((t*pi)-(pi/2))+1)/2)
+sine = makeEasing (0, 1) (\t -> (sin((t*pi)-(pi/2))+1)/2)
 
+{-|
+  Given an EasingFunction and an Animation, applies the EasingFunction to
+  the animation. 
+ -}
 ease : EasingFunction -> Animation a -> Animation a
 ease easing animation = 
   let animate startTime renderable t =
@@ -126,7 +135,6 @@ ease easing animation =
                t' = startTime + ((animation.duration)*weight)
            in animation.animate startTime renderable t'
   in { animation | animate <- animate }
-
 
 
 {-|     

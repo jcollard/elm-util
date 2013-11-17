@@ -34,7 +34,7 @@ animation1 : MoveAnimation
 animation1 = 
   let start = loc (-150, -150)
       end = loc (150, 150)
-  in ease (easingFunction sqrt) <| move start end (5*second)
+  in ease (makeEasing (0, 1) sqrt) <| move start end (5*second)
      
 -- A Red Square
 square : Renderable
