@@ -10,7 +10,8 @@ animation0 : MoveAnimation
 animation0 = 
   let start = loc (200, 200)
       end = loc (-150, 0)
-  in ease start end (3*second) sine
+  in ease sine <| move start end (3*second)
+
 
 -- A Blue Circle
 ball : Renderable
@@ -25,6 +26,7 @@ ball =
 animateBall : Time -> Renderable
 animateBall = animation0.animate 0 ball
 
+
 -- Creates an Animation from (-150, -150) to (150, 150)
 -- over an interval of 5 seconds using the sqrt function
 -- to ease between the two locations
@@ -32,7 +34,7 @@ animation1 : MoveAnimation
 animation1 = 
   let start = loc (-150, -150)
       end = loc (150, 150)
-  in ease start end (5*second) sqrt
+  in ease (easingFunction sqrt) <| move start end (5*second)
      
 -- A Red Square
 square : Renderable
@@ -47,15 +49,15 @@ square =
 animateSquare : Time -> Renderable
 animateSquare = animation1.animate (1*second) square
 
--- Creates an Animation from (150, -150) to (-100, -100)
--- that eases to the location using t^4 taking 1500 milliseconds
--- to complete the transition
+cube t = t*t*t
+
+-- Creates an Animation over the path
+-- (150, -150) -> (-150, 100) -> (0,0) -> (-100, 1100)
+-- over an interval of 1500 milliseconds
 animation2 : MoveAnimation
 animation2 = 
-  let start = loc (150, -150)
-      end = loc (-100, -100)
-  in ease start end (1500*millisecond) (\ t -> t*t*t*t)
-     
+  let locations = map loc [(150, -150), (-150, 100), (0, 0), (-100, -100), (0,0)]
+  in ease cube <| moveMany locations (1500*millisecond)
 -- A Green Triangle
 triangle : Renderable
 triangle =
@@ -79,4 +81,4 @@ display t =
   in render 500 500 [ball', square', triangle']
 
 
-main = display <~ foldp (+) 0 (fps 50)  
+main = display <~ foldp (+) 0 (fps 200)  
