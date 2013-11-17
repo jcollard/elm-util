@@ -20,6 +20,9 @@ data Result = Success | Fail String
 suiteHeader = text . bold . underline . Text.height 16 . toText
 testHeader = text . bold . Text.height 14 . toText
 caseFont = text . Text.height 14 . toText
+passedFont = text . Text.color green . bold . Text.height 14 . toText
+failedFont = text . Text.color red . bold . Text.height 14 . toText
+
 
 type Report =
   {
@@ -84,11 +87,13 @@ reportTest test =
 
 prettyTest : Test -> Element
 prettyTest t =
-  let report = reportTest t
-      title = testHeader t.title
-      summary = caseFont <| "Test Cases: " ++ show report.testcases ++ " Failures: " ++ show report.failures
-      rep = flow right [spacer 20 20, flow down [title, report.report, summary, spacer 20 20]]
-  in rep
+  let report = reportTest t in
+  case report.failures of
+    0 -> flow right [spacer 20 20, testHeader <| t.title ++ ": ", passedFont "Passed"]
+    _ -> let title = flow right [testHeader <| t.title ++ ": ", failedFont "Failed"] 
+             summary = caseFont <| "Test Cases: " ++ show report.testcases ++ " Failures: " ++ show report.failures
+             rep = flow right [spacer 20 20, flow down [title, report.report, summary, spacer 20 20]]
+         in rep
   
 
 type TestSuite =
@@ -109,7 +114,7 @@ prettySuite s =
       failures = foldr (\r sum -> r.failures + sum) 0 reports
       rep = flow down <| [title, spacer 20 20] ++ pretty
       summary = caseFont <| "Total Test Cases: " ++ show testcases ++ " Failures: " ++ show failures
-  in flow down [rep, summary]
+  in flow down [rep, spacer 20 20, summary]
     
 pretty : TestSuite -> Element
 pretty = prettySuite     

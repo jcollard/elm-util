@@ -37,11 +37,11 @@ animation0 = moveAnimation.animate startTime renderable
 
 testBeforeStartLocation0 =
   testcase "testBeforeStartLocation0" <|
-  assertEquals renderable.location (animation0 <| startTime-1).location
+  assertEquals loc0 (animation0 <| startTime-1).location
   
 testBeforeStartLocation1 =
   testcase "testBeforeStartLocation1" <|
-  assertEquals renderable.location (animation0 <| startTime-0.0001).location
+  assertEquals loc0 (animation0 <| startTime-0.0001).location
   
 testStartLocation =
   testcase "The location should match the start location at the start time" <|
