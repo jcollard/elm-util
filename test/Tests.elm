@@ -1,11 +1,11 @@
 module Tests where
 
-import open Test
+import Test as T
 import Graphics.AnimationTest
 
 
-animationTests =
-    flow down [text . header . toText <| "Animation Tests", report Graphics.AnimationTest.tests]
-    
-main = flow down 
-  [animationTests]
+animationTest = Graphics.AnimationTest.test
+
+suite = T.testSuite "Elm-Util Test Suite" [animationTest]
+
+main = T.pretty suite

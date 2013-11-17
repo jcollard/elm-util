@@ -1,15 +1,20 @@
-module Graphics.AnimationTest(tests) where
+module Graphics.AnimationTest(test) where
 
 import open Graphics.Animation
 import Graphics.Collage as Collage
 import Time
 import Test as T
 
+test = T.test "Graphics.AnimationTest" tests
+
+tests = moveAnimationTests ++ composeTests       
+
+
 epsilon = 0.0001
 
 assertEquals = T.assertEquals
 assertWithTolerance = T.assertWithTolerance epsilon
-test = T.test
+testcase = T.testCase
 
 origin = loc (0, 0)
 loc0 = loc (4, 13)
@@ -31,19 +36,19 @@ startTime = 1*second
 animation0 = moveAnimation.animate startTime renderable
 
 testBeforeStartLocation0 =
-  test "The location should not change before the specified start time" <|
+  testcase "testBeforeStartLocation0" <|
   assertEquals renderable.location (animation0 <| startTime-1).location
   
 testBeforeStartLocation1 =
-  test "The location should not change before the specified start time" <|
+  testcase "testBeforeStartLocation1" <|
   assertEquals renderable.location (animation0 <| startTime-0.0001).location
   
 testStartLocation =
-  test "The location should match the start location at the start time" <|
+  testcase "The location should match the start location at the start time" <|
   assertEquals loc0 (animation0 startTime).location
   
 testBetweenLocation0 =
-  test "The location should be between the start and end location in the middle of the animation." <|
+  testcase "The location should be between the start and end location in the middle of the animation." <|
   -- half way
   let time = startTime + (duration/2) 
       expectedLeft = loc0.left + (loc1.left - loc0.left)/2
@@ -51,7 +56,7 @@ testBetweenLocation0 =
   in assertWithTolerance expectedLeft actual.left
      
 testBetweenLocation1 =     
-  test "The location should be between the start and end location in the middle of the animation." <|
+  testcase "The location should be between the start and end location in the middle of the animation." <|
   -- half way
   let time = startTime + (duration/2) 
       expectedTop = loc0.top + (loc1.top - loc0.top)/2
@@ -59,14 +64,14 @@ testBetweenLocation1 =
   in assertWithTolerance expectedTop actual.top
      
 testAtEnd0 =
-  test "The location should be the end location when the duration is met." <|
+  testcase "The location should be the end location when the duration is met." <|
   let time = startTime + duration
       expectedTop = loc1.top
       actual = (animation0 time).location
   in assertWithTolerance expectedTop actual.top
 
 testAtEnd1 =
-  test "The location should be the end location when the duration is met." <|
+  testcase "The location should be the end location when the duration is met." <|
   let time = startTime + duration
       expectedLeft = loc1.left
       actual = (animation0 time).location
@@ -88,19 +93,19 @@ composedAnimation = moveAnimation `compose` moveAnimation2
 animation2 = composedAnimation.animate startTime renderable
 
 testCompositionDuration =
-  test "The composition of two animations should have a duration equal to the sum of the two animations durations." <|
+  testcase "The composition of two animations should have a duration equal to the sum of the two animations durations." <|
   let expectedDuration = duration + duration2
       actualDuration = composedAnimation.duration
   in assertEquals expectedDuration actualDuration
                      
 testComposedStart =
-  test "The composition of two animations should start with the first animations start." <|
+  testcase "The composition of two animations should start with the first animations start." <|
   let expectedStart = loc0
       actualStart = composedAnimation.start
   in assertEquals expectedStart actualStart
      
 testComposedEnd =
-  test "The composition of two animations should end with the second animations end." <|
+  testcase "The composition of two animations should end with the second animations end." <|
   let expectedEnd = loc2
       actualEnd = composedAnimation.end
   in assertEquals expectedEnd actualEnd
@@ -109,4 +114,3 @@ composeTests = [testCompositionDuration,
                 testComposedStart,
                 testComposedEnd]     
      
-tests = moveAnimationTests ++ composeTests       
