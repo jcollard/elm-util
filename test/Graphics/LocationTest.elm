@@ -29,7 +29,7 @@ testConstructor1 =
   testcase "testConstructor1" <|
   assertEquals 2 (loc (1, 2)).top
   
-distanceTest = [testDistance0, testDistance1, testDistance2, testDistance3, testDistance4, testDistance5]  
+distanceTest = [testDistance0, testDistance1, testDistance2, testDistance3, testDistance4, testDistance5, testDistance6]  
   
 testDistance0 =
   testcase "testDistance0" <|
@@ -54,3 +54,7 @@ testDistance4 =
 testDistance5 =
   testcase "testDistance5" <|
   assertWithTolerance (distance loc3 loc1) (distance loc1 loc3)  
+  
+testDistance6 =
+  testcase "testDistance6" <|
+  assertWithTolerance (1 + sqrt 2) (totalDistance [loc1, loc2, loc0])
