@@ -16,3 +16,10 @@ zipWith4 f ws xs ys zs =
     ((w::ws), (x::xs), (y::ys), (z::zs)) -> ((f w x y z) :: (zipWith4 f ws xs ys zs))
     _ -> []
     
+foldl : (a -> b -> a) -> a -> [b] -> a
+foldl f z0 xs0 = 
+  let lgo z zs =
+        case zs of
+             [] -> z
+             (x::xs) -> lgo (f z x) xs
+  in lgo z0 xs0

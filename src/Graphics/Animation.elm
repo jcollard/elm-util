@@ -1,24 +1,20 @@
 module Graphics.Animation where
 
+import Graphics.Location as Location
+
 {-|
   This module provides a framework for creating animations.
  -}
 
 import Graphics.Collage as Collage
 
-{-|
-  A Location within a Form
- -}
-type Location 
- = { left : Float
-   , top : Float
-   }
-   
+type Location = Location.Location
+
 {-|   
   Creates a Location
  -}
 loc : (Float, Float) -> Location
-loc (left, top) = {left = left, top = top}   
+loc = Location.loc
 
 {-|
   A Renderable contains a form to be rendered
@@ -81,28 +77,14 @@ moveWithEase easing start end duration =
   at a constant speed over the entire duration.
  -}
 moveMany : [Location] -> Time -> MoveAnimation
-moveMany ls time = composeMany <| moveManyHelp ls time (totalDistance ls)
+moveMany ls time = composeMany <| moveManyHelp ls time (Location.totalDistance ls)
 
 moveManyHelp : [Location] -> Time -> Float -> [MoveAnimation]
 moveManyHelp (l0::l1::ls) time total = 
-  let duration = time*((distance l0 l1)/total) in
+  let duration = time*((Location.distance l0 l1)/total) in
   case ls of
     [] -> [move l0 l1 duration]
     _ -> (move l0 l1 duration) :: (moveManyHelp (l1::ls) time total)
-
-distance : Location -> Location -> Float
-distance l0 l1 = 
-  let a = abs (l0.left - l1.left)
-      b = abs (l0.top - l1.top)
-  in sqrt <| a*a + b*b
-
-totalDistance : [Location] -> Float
-totalDistance ls = 
-  let (_, val) =
-        case ls of
-          [] -> (loc (0,0), 0)
-          (l::ls) -> foldl (\(l1, acc) l0 -> (l0, acc + (distance l0 l1))) (l, 0) ls
-  in val
                        
 {-|     
   An EasingFunction takes in the percentage of time that has passed (0 = 0%, 

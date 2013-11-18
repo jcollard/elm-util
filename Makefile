@@ -11,7 +11,9 @@ TEST_FLAGS = $(FLAGS) --src-dir=$(TEST)
 BUILD_TEST_FLAGS = $(BUILD_FLAGS) --src-dir=$(TEST)
 
 
-compile: sprite animation test_framework resources
+compile: graphics test_framework resources
+
+graphics: sprite animation location path
 
 all: compile test examples
 
@@ -50,6 +52,28 @@ animation: $(Animation.js)
 $(Animation.js): $(Animation.elm)
 	$(CC) $(FLAGS) $(Animation.elm)
 
+## Graphics.Location
+
+Location = $(SRC)/Graphics/Location
+Location.js = build/$(Location).js
+Location.elm = $(Location).elm
+
+location: $(Location.js)
+$(Location.js): $(Location.elm)
+	$(CC) $(FLAGS) $(Location.elm)
+
+## Graphics.Path
+
+Path = $(SRC)/Graphics/Path
+Path.js = build/$(Path).js
+Path.elm = $(Path).elm
+
+path: $(Path.js)
+$(Path.js): $(Path.elm)
+	$(CC) $(FLAGS) $(Path.elm)
+
+
+
 ## Test
 
 Test = $(SRC)/Test
@@ -71,12 +95,21 @@ animationTest: $(AnimationTest.js)
 $(AnimationTest.js): $(AnimationTest.elm) $(Animation.elm)
 	$(CC) $(TEST_FLAGS) $(AnimationTest.elm)
 
+# Graphics.LocationTest
+
+LocationTest = $(TEST)/Graphics/LocationTest
+LocationTest.js = build/$(LocationTest).js
+LocationTest.elm = $(LocationTest).elm
+locationTest: $(LocationTest.js)
+$(LocationTest.js): $(LocationTest.elm) $(Location.elm)
+	$(CC) $(TEST_FLAGS) $(LocationTest.elm)
+
 
 Tests = $(TEST)/Tests
 Tests.html = build/$(Tests).html
 Tests.elm = $(Tests).elm
-tests: $(Tests.html) $(AnimationTest.js) test_resources
-$(Tests.html): $(Tests.elm) $(AnimationTest.elm) $(Animation.elm)
+tests: $(Tests.html) test_resources
+$(Tests.html): $(Tests.elm) $(AnimationTest.elm) $(LocationTest.elm) $(Animation.elm)
 	$(CC) --runtime=$(RTS) $(BUILD_TEST_FLAGS) $(Tests.elm)
 
 
