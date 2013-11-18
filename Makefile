@@ -104,12 +104,20 @@ locationTest: $(LocationTest.js)
 $(LocationTest.js): $(LocationTest.elm) $(Location.elm)
 	$(CC) $(TEST_FLAGS) $(LocationTest.elm)
 
+# Graphics.PathTest
+
+PathTest = $(TEST)/Graphics/PathTest
+PathTest.js = build/$(PathTest).js
+PathTest.elm = $(PathTest).elm
+pathTest: $(PathTest.js)
+$(PathTest.js): $(PathTest.elm) $(Path.elm)
+	$(CC) $(TEST_FLAGS) $(PathTest.elm)
 
 Tests = $(TEST)/Tests
 Tests.html = build/$(Tests).html
 Tests.elm = $(Tests).elm
 tests: $(Tests.html) test_resources
-$(Tests.html): $(Tests.elm) $(AnimationTest.elm) $(LocationTest.elm) $(Animation.elm)
+$(Tests.html): $(Tests.elm) $(AnimationTest.elm) $(Animation.elm) $(LocationTest.elm) $(Location.elm) $(Animation.elm) $(PathTest.elm) $(Path.elm)
 	$(CC) --runtime=$(RTS) $(BUILD_TEST_FLAGS) $(Tests.elm)
 
 
