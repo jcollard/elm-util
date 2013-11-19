@@ -45,7 +45,10 @@ line start end =
 
  -}
 path : [Location] -> Path
-path (a::b::ls) = Util.foldl compose (line a b) <| pathHelper b (ls)
+path ls =
+    case ls of
+      (a::b::[]) -> line a b
+      (a::b::ls) -> Util.foldl compose (line a b) <| pathHelper b (ls)
     
 pathHelper : Location -> [Location] -> [Path]
 pathHelper a (b::ls) = 

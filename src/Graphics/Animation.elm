@@ -1,5 +1,4 @@
 module Graphics.Animation where
-
 import open Util
 import Graphics.Path as Path
 import Graphics.Location as Location
