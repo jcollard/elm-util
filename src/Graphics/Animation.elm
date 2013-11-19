@@ -23,6 +23,12 @@ type Animation
    , animate  : Time -> Renderable -> (Time -> Renderable) 
    }
    
+animateAll : [Time -> Renderable] -> Time -> [Renderable]
+animateAll anims t =
+  case anims of
+    [] -> []
+    (a::anims) -> a t :: animateAll anims t
+
 oscillate : Animation -> Animation
 oscillate toRock =
   let duration' = round toRock.duration
