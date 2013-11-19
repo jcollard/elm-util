@@ -13,7 +13,7 @@ BUILD_TEST_FLAGS = $(BUILD_FLAGS) --src-dir=$(TEST)
 
 compile: graphics test_framework resources
 
-graphics: sprite animation location path
+graphics: sprite animation location path renderable
 
 all: compile test examples
 
@@ -72,6 +72,15 @@ path: $(Path.js)
 $(Path.js): $(Path.elm)
 	$(CC) $(FLAGS) $(Path.elm)
 
+## Graphics.Renderable
+
+Renderable = $(SRC)/Graphics/Renderable
+Renderable.js = build/$(Renderable).js
+Renderable.elm = $(Renderable).elm
+
+renderable: $(Renderable.js)
+$(Renderable.js): $(Renderable.elm)
+	$(CC) $(FLAGS) $(Renderable.elm)
 
 
 ## Test
@@ -121,8 +130,17 @@ $(Tests.html): $(Tests.elm) $(AnimationTest.elm) $(Animation.elm) $(LocationTest
 	$(CC) --runtime=$(RTS) $(BUILD_TEST_FLAGS) $(Tests.elm)
 
 
-animationExamples: easeAnimationExample moveAnimationExample composedAnimationExample
+#easeAnimationExample moveAnimationExample composedAnimationExample
+animationExamples: basicAnimationExample
 
+# Basic Animation Example
+BasicAnimationExample = $(EXAMPLES)/Graphics/Animation/BasicAnimationExample
+BasicAnimationExample.html = build/$(BasicAnimationExample).html
+BasicAnimationExample.elm = $(BasicAnimationExample).elm
+
+basicAnimationExample: $(BasicAnimationExample.html)
+$(BasicAnimationExample.html): $(BasicAnimationExample.elm) $(Animation.elm)
+	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(BasicAnimationExample.elm)
 # Move Animation Example
 MoveAnimationExample = $(EXAMPLES)/Graphics/Animation/MoveAnimationExample
 MoveAnimationExample.html = build/$(MoveAnimationExample).html

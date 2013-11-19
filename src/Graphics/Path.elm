@@ -35,7 +35,7 @@ line start end =
         locationAt pos =
           let percentage = pos/length
               newLeft = start.left + dLeft*percentage
-              newTop = start.left + dTop*percentage
+              newTop = start.top + dTop*percentage
           in Location.loc (newLeft, newTop)
     in { length = length, locationAt = locationAt }
        
@@ -45,7 +45,7 @@ line start end =
 
  -}
 path : [Location] -> Path
-path (a::b::ls) = Util.foldl compose (line a b) <| pathHelper a (b::ls)
+path (a::b::ls) = Util.foldl compose (line a b) <| pathHelper b (ls)
     
 pathHelper : Location -> [Location] -> [Path]
 pathHelper a (b::ls) = 
@@ -73,11 +73,11 @@ compose first second =
       locationAt pos =
         let percentage = pos/length
             inFirst = percentage < firstWeight
-        in if inFirst then first.locationAt (percentage/firstWeight)
+        in if inFirst then first.locationAt ((percentage/firstWeight)*first.length)
            else 
              let inMerge = (percentage - firstWeight) < mergePathWeight
-             in if inMerge then mergePath.locationAt ((percentage - firstWeight)/mergePathWeight)
+             in if inMerge then mergePath.locationAt (((percentage - firstWeight)/mergePathWeight)*mergePath.length)
                 else
-                  second.locationAt ((percentage - firstWeight - mergePathWeight)/secondWeight)
+                  second.locationAt (((percentage - firstWeight - mergePathWeight)/secondWeight) * second.length)
   in {length = length, locationAt = locationAt }
             

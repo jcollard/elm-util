@@ -7,3 +7,4 @@
 build
 cache
 tests.txt
+*.bak
