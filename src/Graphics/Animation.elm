@@ -18,77 +18,79 @@ import Graphics.Collage as Collage
   and produces a time varying renderable.
 
  -}
-type Animation 
+type AnimationBuilder 
  = { duration : Time
-   , animate  : Time -> Renderable -> (Time -> Renderable) 
+   , build   : Time -> Renderable -> Animation
    }
    
-animateAll : [Time -> Renderable] -> Time -> [Renderable]
+type Animation = Time -> Renderable
+
+animateAll : [Animation] -> Time -> [Renderable]
 animateAll anims t =
   case anims of
     [] -> []
     (a::anims) -> a t :: animateAll anims t
 
-oscillate : Animation -> Animation
+oscillate : AnimationBuilder -> AnimationBuilder
 oscillate toRock =
   let duration' = round toRock.duration
       osc n = 
         let n' = n `mod` (duration'*2) 
         in if n' <= duration' then n' else (duration' - (n' `mod` duration'))
-      animate startTime form t =   
+      build startTime form t =   
         let t' =
               if t < startTime then t
               else startTime + (toFloat <| osc (round (t - startTime)))
-        in toRock.animate startTime form t'
-  in {toRock| animate <- animate}
+        in toRock.build startTime form t'
+  in {toRock| build <- build}
    
-loop : Animation -> Animation
+loop : AnimationBuilder -> AnimationBuilder
 loop toLoop =
-    let animate startTime form t =
+    let build startTime form t =
         let t' = 
               if t < startTime then t
               else startTime + (toFloat <| ((round (t - startTime)) `mod` (round toLoop.duration)))
-        in toLoop.animate startTime form t'
-  in {toLoop| animate <- animate}
+        in toLoop.build startTime form t'
+  in {toLoop| build <- build}
 
-mergeMany : [Animation] -> Animation
+mergeMany : [AnimationBuilder] -> AnimationBuilder
 mergeMany = foldl1 merge
 
-merge : Animation -> Animation -> Animation
+merge : AnimationBuilder -> AnimationBuilder -> AnimationBuilder
 merge a0 a1 =
   let duration = max a0.duration a1.duration
-      animate startTime renderable t =
+      build startTime renderable t =
         if t < startTime then renderable
         else 
-          let first = a0.animate startTime renderable t
-              second = a1.animate startTime first t
+          let first = a0.build startTime renderable t
+              second = a1.build startTime first t
           in second
-  in {duration = duration, animate = animate}
+  in {duration = duration, build = build}
 
-animateScaleTo: Float -> Time -> Animation
-animateScaleTo scaleTo duration =
-  let animate startTime renderable t =
+buildScaleTo: Float -> Time -> AnimationBuilder
+buildScaleTo scaleTo duration =
+  let build startTime renderable t =
         let diff = scaleTo - renderable.scale in
         if t < startTime then renderable
         else
           let percentage = min 1 (max 0 (t - startTime)/duration)
               scale = renderable.scale + diff*percentage
           in { renderable | scale <- scale }
-  in {duration = duration, animate = animate}
+  in {duration = duration, build = build}
 
-animateRotate : Float -> Time -> Animation
-animateRotate degrees duration =
-  let animate startTime renderable t =
+buildRotate : Float -> Time -> AnimationBuilder
+buildRotate degrees duration =
+  let build startTime renderable t =
         if t < startTime then renderable
         else
           let percentage = min 1 (max 0 (t - startTime)/duration)
               orientation = renderable.orientation + degrees*percentage
           in {renderable | orientation <- orientation}
-  in { duration = duration, animate = animate }
+  in { duration = duration, build = build }
    
-animatePath : Path -> Time -> Animation   
-animatePath path duration = 
-  let animate startTime renderable t =
+buildPath : Path -> Time -> AnimationBuilder   
+buildPath path duration = 
+  let build startTime renderable t =
         if t < startTime then renderable
         else
           let percentage = min 1 (max 0 (t - startTime)/duration)
@@ -96,7 +98,7 @@ animatePath path duration =
               location = path.locationAt position
               newRenderable = {renderable | location <- location}
           in newRenderable
-  in { duration = duration, animate = animate }
+  in { duration = duration, build = build }
 
 -- Re-Export Graphics.Location
 type Location = Location.Location
