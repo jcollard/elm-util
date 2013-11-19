@@ -30,6 +30,30 @@ animateAll anims t =
     [] -> []
     (a::anims) -> a t :: animateAll anims t
 
+ease : (Float -> Float) -> AnimationBuilder -> AnimationBuilder
+ease easing animation =
+  let build startTime renderable t =
+        let percentage = easing <| min 1 (max ((t - startTime)/animation.duration) 0)
+            t' = (t - startTime)*percentage
+        in animation.build startTime renderable t'
+  in {animation| build <- build}
+
+{-| Fade linearly from 0 to 1 to 0 -}
+fade : Float -> Float
+fade t = if t < 0.5 then 2*t else (1 - t)*2
+
+{-| Start slowly and accelerate. -}
+sineIn : Float -> Float
+sineIn t = sin ((t-1) * turns 0.25) + 1
+
+{-| Start quickly and deccelerate. -}
+sineOut : Float -> Float
+sineOut t = sin (t * turns 0.25)
+
+{-| Start slowly, accelerate, and then deccelerate. -}
+sineInOut : Float -> Float
+sineInOut t = (sin ((2*t-1) * turns 0.25) + 1) / 2
+
 oscillate : AnimationBuilder -> AnimationBuilder
 oscillate toRock =
   let duration' = round toRock.duration

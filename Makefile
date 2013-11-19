@@ -131,7 +131,7 @@ $(Tests.html): $(Tests.elm) $(AnimationTest.elm) $(Animation.elm) $(LocationTest
 
 
 #easeAnimationExample moveAnimationExample composedAnimationExample
-animationExamples: basicAnimationExample mouseClickExample mouseClickExample2
+animationExamples: basicAnimationExample mouseClickExample mouseClickExample2 easeExample
 
 # Basic Animation Example
 BasicAnimationExample = $(EXAMPLES)/Graphics/Animation/BasicAnimationExample
@@ -141,6 +141,16 @@ BasicAnimationExample.elm = $(BasicAnimationExample).elm
 basicAnimationExample: $(BasicAnimationExample.html)
 $(BasicAnimationExample.html): $(BasicAnimationExample.elm) $(Animation.elm)
 	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(BasicAnimationExample.elm)
+
+# Ease Animation Example
+EaseAnimationExample = $(EXAMPLES)/Graphics/Animation/EaseAnimationExample
+EaseAnimationExample.html = build/$(EaseAnimationExample).html
+EaseAnimationExample.elm = $(EaseAnimationExample).elm
+
+easeExample: $(EaseAnimationExample.html)
+$(EaseAnimationExample.html): $(EaseAnimationExample.elm) $(Animation.elm)
+	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(EaseAnimationExample.elm)
+
 
 # Basic Animation Example
 MouseClickExample = $(EXAMPLES)/Graphics/Animation/MouseClickExample
