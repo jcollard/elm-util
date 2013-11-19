@@ -14,23 +14,22 @@ toLoc (left, top) =
       top' = toFloat <| (height `div` 2) - top
   in loc (left', top')
 
--- The square does a full rotation every 2 seconds, scales between 1.0
--- and 2.0 on an interval of 4 seconds and travels around in a square path
--- continuously every 8 seconds
---square : Renderable
 square : Renderable
 square = { defaultRenderable |
              form <- filled red <| Collage.square 20
            , location <- loc (0,0)
          }
-squarePath = Path.path <| map loc [(100,100), (-100,100), (-100,-100), (100,-100), (100,100)]
+
 rotation = loop <| buildRotate 90 (500*millisecond)
 scaling = oscillate <| buildScaleTo 2.0 (2*second)
 
 animation state = 
   if state.length < 2 then (merge rotation scaling).build 0 square
   else
-    let p = loop <| buildPath (Path.path <| state.positions ++ [head state.positions]) (8*second)
+    let p = loop <| 
+            buildPath 
+              (Path.path <| state.positions ++ [head state.positions]) 
+              (8*second)
     in (mergeMany [rotation, scaling, p]).build 0 square
 
 stepTime time state = {state | time <- time}
