@@ -130,38 +130,34 @@ merge a0 a1 =
           in second
   in {duration = duration, build = build}
 
+builder : (Float -> Renderable -> Renderable) -> Time -> AnimationBuilder
+builder animate duration =
+  let build startTime renderable t =
+        if t < startTime then renderable
+        else animate (min 1 (max 0 ((t - startTime)/duration))) renderable
+  in { duration = duration, build = build }
+
 scale : Float -> Time -> AnimationBuilder
 scale scale duration =
-  let build startTime renderable t =
-        let diff = renderable.scale*scale - renderable.scale in
-        if t < startTime then renderable
-        else
-          let percentage = min 1 (max 0 (t - startTime)/duration)
-              scale = renderable.scale + diff*percentage
-          in { renderable | scale <- scale }
-  in {duration = duration, build = build}
+  let animation percentage renderable =
+        let diff = renderable.scale*scale - renderable.scale
+            newScale = renderable.scale + diff*percentage
+        in { renderable | scale <- newScale }
+  in builder animation duration
 
 rotate : Float -> Time -> AnimationBuilder
 rotate degrees duration =
-  let build startTime renderable t =
-        if t < startTime then renderable
-        else
-          let percentage = min 1 (max 0 (t - startTime)/duration)
-              orientation = renderable.orientation + degrees*percentage
-          in {renderable | orientation <- orientation}
-  in { duration = duration, build = build }
-   
-path : Path -> Time -> AnimationBuilder   
-path path duration = 
-  let build startTime renderable t =
-        if t < startTime then renderable
-        else
-          let percentage = min 1 (max 0 (t - startTime)/duration)
-              position = path.length * percentage
-              location = path.locationAt position
-              newRenderable = {renderable | location <- location}
-          in newRenderable
-  in { duration = duration, build = build }
+  let animation percentage renderable =
+        let orientation = renderable.orientation + degrees*percentage
+        in { renderable | orientation <- orientation }
+  in builder animation duration
+
+path : Path -> Time -> AnimationBuilder
+path path duration =
+  let animation percentage renderable =
+        let position = path.length * percentage
+        in { renderable | location <- path.locationAt position }
+  in builder animation duration
 
 -- Re-Export Graphics.Location
 type Location = Location.Location
