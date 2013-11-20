@@ -10,13 +10,15 @@ import open Graphics.Animation
 square : Renderable
 square = { defaultRenderable |
              form <- filled red <| Collage.square 20
-           , location <- loc (100, 100)  
+           , location <- loc (100, 100)
+           , orientation <- 0
          }
 squarePath = Path.path <| map loc [(100,100), (-100,100), (-100,-100), (100,-100), (100,100)]
-movement = loop <| path squarePath (8*second)
-rotation = loop <| rotate 90 (500*millisecond)
-scaling = oscillate <| scale 2.0 (2*second)
-squareBuilder = scaling <*> rotation <*> movement
+movement = loopN 2 <| path squarePath (4*second)
+rotation = loopN 8 <| rotate 360 (1*second)
+scaling = scale 4.0 (8*second)
+scaleRotate = scaling <*> rotation
+squareBuilder = oscillate <| ease sineOut <| scaleRotate <*> movement
 squareAnimation = squareBuilder.build 0 square
 
 scene t =

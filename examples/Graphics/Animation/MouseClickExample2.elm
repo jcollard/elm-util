@@ -20,17 +20,17 @@ square = { defaultRenderable |
            , location <- loc (0,0)
          }
 
-rotation = loop <| buildRotate 90 (500*millisecond)
-scaling = oscillate <| buildScaleTo 2.0 (2*second)
+rotation = loop <| rotate 90 (500*millisecond)
+scaling = oscillate <| scale 2.0 (2*second)
 
 animation state = 
-  if state.length < 2 then (merge rotation scaling).build 0 square
+  if state.length < 2 then (rotation <*> scaling).build 0 square
   else
     let p = loop <| 
-            buildPath 
+            path
               (Path.path <| state.positions ++ [head state.positions]) 
               (8*second)
-    in (mergeMany [rotation, scaling, p]).build 0 square
+    in (rotation <*> scaling <*> p).build 0 square
 
 stepTime time state = {state | time <- time}
 stepClicks (t, coord) state = 

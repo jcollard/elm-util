@@ -20,9 +20,9 @@ square pos = { defaultRenderable |
            , location <- toLoc pos
          }
 
-rotation = loop <| buildRotate 90 (500*millisecond)
-scaling = oscillate <| buildScaleTo 2.0 (2*second)
-animationBuilder = merge scaling rotation
+rotation = loop <| rotate 90 (500*millisecond)
+scaling = oscillate <| scale 2.0 (2*second)
+animationBuilder = scaling <*> rotation
 
 stepTime time state = {state | time <- time}
 stepClicks (t, coord) state = 

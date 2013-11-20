@@ -54,18 +54,52 @@ sineOut t = sin (t * turns 0.25)
 sineInOut : Float -> Float
 sineInOut t = (sin ((2*t-1) * turns 0.25) + 1) / 2
 
+delay : Time -> AnimationBuilder -> AnimationBuilder
+delay wait animation =
+  let duration = animation.duration + wait
+      build startTime form t =
+        if t < startTime + wait then form
+        else animation.build startTime form (t - wait)
+  in { duration = duration, build = build }
+
+sequence : AnimationBuilder -> AnimationBuilder -> AnimationBuilder
+sequence first second = 
+  let duration = first.duration + second.duration
+      build startTime form t =
+        if t <= startTime + first.duration then first.build startTime form t
+        else 
+          let lastForm = first.build startTime form (startTime + first.duration) in
+          second.build startTime  lastForm (t - first.duration)
+  in { duration = duration, build = build }
+
+(>>) : AnimationBuilder -> AnimationBuilder -> AnimationBuilder
+(>>) = sequence
+
 oscillate : AnimationBuilder -> AnimationBuilder
 oscillate toRock =
   let duration' = round toRock.duration
       osc n = 
-        let n' = n `mod` (duration'*2) 
+        let n' = n `mod` (duration'*2)
         in if n' <= duration' then n' else (duration' - (n' `mod` duration'))
       build startTime form t =   
         let t' =
               if t < startTime then t
               else startTime + (toFloat <| osc (round (t - startTime)))
         in toRock.build startTime form t'
-  in {toRock| build <- build}
+  in {toRock| build <- build, duration <- toRock.duration * 2}
+
+loopN : Int -> AnimationBuilder -> AnimationBuilder
+loopN n toLoop =
+  let duration = toLoop.duration*(toFloat n)
+      looping = loop toLoop
+      build startTime form t =
+        let t' = t - startTime
+            loopAnimation = looping.build startTime form
+            animation = toLoop.build startTime form
+        in if t' < duration then loopAnimation t'
+           else animation t'
+  in { duration = duration, build = build }
+                                    
    
 loop : AnimationBuilder -> AnimationBuilder
 loop toLoop =
@@ -76,8 +110,14 @@ loop toLoop =
         in toLoop.build startTime form t'
   in {toLoop| build <- build}
 
+(<>) : (Time -> AnimationBuilder) -> (Time -> AnimationBuilder) -> (Time -> AnimationBuilder)
+(<>) first second t = (first t) <*> (second t)
+
 mergeMany : [AnimationBuilder] -> AnimationBuilder
 mergeMany = foldl1 merge
+
+(<*>) : AnimationBuilder -> AnimationBuilder -> AnimationBuilder
+(<*>) = merge
 
 merge : AnimationBuilder -> AnimationBuilder -> AnimationBuilder
 merge a0 a1 =
@@ -90,10 +130,10 @@ merge a0 a1 =
           in second
   in {duration = duration, build = build}
 
-buildScaleTo: Float -> Time -> AnimationBuilder
-buildScaleTo scaleTo duration =
+scale : Float -> Time -> AnimationBuilder
+scale scale duration =
   let build startTime renderable t =
-        let diff = scaleTo - renderable.scale in
+        let diff = renderable.scale*scale - renderable.scale in
         if t < startTime then renderable
         else
           let percentage = min 1 (max 0 (t - startTime)/duration)
@@ -101,8 +141,8 @@ buildScaleTo scaleTo duration =
           in { renderable | scale <- scale }
   in {duration = duration, build = build}
 
-buildRotate : Float -> Time -> AnimationBuilder
-buildRotate degrees duration =
+rotate : Float -> Time -> AnimationBuilder
+rotate degrees duration =
   let build startTime renderable t =
         if t < startTime then renderable
         else
@@ -111,8 +151,8 @@ buildRotate degrees duration =
           in {renderable | orientation <- orientation}
   in { duration = duration, build = build }
    
-buildPath : Path -> Time -> AnimationBuilder   
-buildPath path duration = 
+path : Path -> Time -> AnimationBuilder   
+path path duration = 
   let build startTime renderable t =
         if t < startTime then renderable
         else

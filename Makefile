@@ -131,7 +131,7 @@ $(Tests.html): $(Tests.elm) $(AnimationTest.elm) $(Animation.elm) $(LocationTest
 
 
 #easeAnimationExample moveAnimationExample composedAnimationExample
-animationExamples: basicAnimationExample mouseClickExample mouseClickExample2 easeExample
+animationExamples: basicAnimationExample mouseClickExample mouseClickExample2 easeExample loopExample sequenceExample animationExample
 
 # Basic Animation Example
 BasicAnimationExample = $(EXAMPLES)/Graphics/Animation/BasicAnimationExample
@@ -150,6 +150,34 @@ EaseAnimationExample.elm = $(EaseAnimationExample).elm
 easeExample: $(EaseAnimationExample.html)
 $(EaseAnimationExample.html): $(EaseAnimationExample.elm) $(Animation.elm)
 	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(EaseAnimationExample.elm)
+
+
+# Loop Animation Example
+LoopAnimationExample = $(EXAMPLES)/Graphics/Animation/LoopAnimationExample
+LoopAnimationExample.html = build/$(LoopAnimationExample).html
+LoopAnimationExample.elm = $(LoopAnimationExample).elm
+
+loopExample: $(LoopAnimationExample.html)
+$(LoopAnimationExample.html): $(LoopAnimationExample.elm) $(Animation.elm)
+	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(LoopAnimationExample.elm)
+
+# Sequence Example
+SequenceExample = $(EXAMPLES)/Graphics/Animation/SequenceExample
+SequenceExample.html = build/$(SequenceExample).html
+SequenceExample.elm = $(SequenceExample).elm
+
+sequenceExample: $(SequenceExample.html)
+$(SequenceExample.html): $(SequenceExample.elm) $(Animation.elm)
+	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(SequenceExample.elm)
+
+# Animation Example
+AnimationExample = $(EXAMPLES)/Graphics/Animation/AnimationExample
+AnimationExample.html = build/$(AnimationExample).html
+AnimationExample.elm = $(AnimationExample).elm
+
+animationExample: $(AnimationExample.html)
+$(AnimationExample.html): $(AnimationExample.elm) $(Animation.elm)
+	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(AnimationExample.elm)
 
 
 # Basic Animation Example
