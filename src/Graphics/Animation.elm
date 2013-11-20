@@ -1,15 +1,7 @@
 module Graphics.Animation where
 import open Util
-import Graphics.Path as Path
-import Graphics.Location as Location
 import Graphics.Collage as Collage
-import Graphics.Renderable as Renderable
 
-{-|
-  This module provides a framework for creating animations.
- -}
-
-import Graphics.Collage as Collage
 
 {-|
 
@@ -17,20 +9,20 @@ import Graphics.Collage as Collage
   and produces a time varying renderable.
 
  -}
-type AnimationBuilder 
+type Builder a
  = { duration : Time
-   , build   : Time -> Renderable -> Animation
+   , build   : Time -> a -> Animation a
    }
    
-type Animation = Time -> Renderable
+type Animation a = Time -> a
 
-animateAll : [Animation] -> Time -> [Renderable]
+animateAll : [Animation a] -> Time -> [a]
 animateAll anims t =
   case anims of
     [] -> []
     (a::anims) -> a t :: animateAll anims t
 
-ease : (Float -> Float) -> AnimationBuilder -> AnimationBuilder
+ease : (Float -> Float) -> Builder a -> Builder a
 ease easing animation =
   let build startTime renderable t =
         let percentage = easing <| min 1 (max ((t - startTime)/animation.duration) 0)
@@ -54,7 +46,7 @@ sineOut t = sin (t * turns 0.25)
 sineInOut : Float -> Float
 sineInOut t = (sin ((2*t-1) * turns 0.25) + 1) / 2
 
-delay : Time -> AnimationBuilder -> AnimationBuilder
+delay : Time -> Builder a -> Builder a
 delay wait animation =
   let duration = animation.duration + wait
       build startTime form t =
@@ -62,7 +54,7 @@ delay wait animation =
         else animation.build startTime form (t - wait)
   in { duration = duration, build = build }
 
-sequence : AnimationBuilder -> AnimationBuilder -> AnimationBuilder
+sequence : Builder a -> Builder a -> Builder a
 sequence first second = 
   let duration = first.duration + second.duration
       build startTime form t =
@@ -72,10 +64,10 @@ sequence first second =
           second.build startTime  lastForm (t - first.duration)
   in { duration = duration, build = build }
 
-(>>) : AnimationBuilder -> AnimationBuilder -> AnimationBuilder
+(>>) : Builder a -> Builder a -> Builder a
 (>>) = sequence
 
-oscillate : AnimationBuilder -> AnimationBuilder
+oscillate : Builder a -> Builder a
 oscillate toRock =
   let duration' = round toRock.duration
       osc n = 
@@ -88,7 +80,7 @@ oscillate toRock =
         in toRock.build startTime form t'
   in {toRock| build <- build, duration <- toRock.duration * 2}
 
-loopN : Int -> AnimationBuilder -> AnimationBuilder
+loopN : Int -> Builder a -> Builder a
 loopN n toLoop =
   let duration = toLoop.duration*(toFloat n)
       looping = loop toLoop
@@ -101,7 +93,7 @@ loopN n toLoop =
   in { duration = duration, build = build }
                                     
    
-loop : AnimationBuilder -> AnimationBuilder
+loop : Builder a -> Builder a
 loop toLoop =
     let build startTime form t =
         let t' = 
@@ -110,16 +102,16 @@ loop toLoop =
         in toLoop.build startTime form t'
   in {toLoop| build <- build}
 
-(<>) : (Time -> AnimationBuilder) -> (Time -> AnimationBuilder) -> (Time -> AnimationBuilder)
+(<>) : (Time -> Builder a ) -> (Time -> Builder a) -> (Time -> Builder a)
 (<>) first second t = (first t) <*> (second t)
 
-mergeMany : [AnimationBuilder] -> AnimationBuilder
+mergeMany : [Builder a] -> Builder a
 mergeMany = foldl1 merge
 
-(<*>) : AnimationBuilder -> AnimationBuilder -> AnimationBuilder
+(<*>) : Builder a -> Builder a -> Builder a
 (<*>) = merge
 
-merge : AnimationBuilder -> AnimationBuilder -> AnimationBuilder
+merge : Builder a -> Builder a -> Builder a
 merge a0 a1 =
   let duration = max a0.duration a1.duration
       build startTime renderable t =
@@ -130,49 +122,10 @@ merge a0 a1 =
           in second
   in {duration = duration, build = build}
 
-builder : (Float -> Renderable -> Renderable) -> Time -> AnimationBuilder
+builder : (Float -> a -> a) -> Time -> Builder a
 builder animate duration =
   let build startTime renderable t =
         if t < startTime then renderable
         else animate (min 1 (max 0 ((t - startTime)/duration))) renderable
   in { duration = duration, build = build }
 
-scale : Float -> Time -> AnimationBuilder
-scale scale duration =
-  let animation percentage renderable =
-        let diff = renderable.scale*scale - renderable.scale
-            newScale = renderable.scale + diff*percentage
-        in { renderable | scale <- newScale }
-  in builder animation duration
-
-rotate : Float -> Time -> AnimationBuilder
-rotate degrees duration =
-  let animation percentage renderable =
-        let orientation = renderable.orientation + degrees*percentage
-        in { renderable | orientation <- orientation }
-  in builder animation duration
-
-path : Path -> Time -> AnimationBuilder
-path path duration =
-  let animation percentage renderable =
-        let position = path.length * percentage
-        in { renderable | location <- path.locationAt position }
-  in builder animation duration
-
--- Re-Export Graphics.Location
-type Location = Location.Location
-
-loc : (Float, Float) -> Location
-loc = Location.loc
-
-
--- Re-Export Graphics.Path
-
-type Path = Path.Path
-type Renderable = Renderable.Renderable
-
-defaultRenderable : Renderable
-defaultRenderable = Renderable.defaultRenderable
-
-render : Int -> Int -> [Renderable] -> Element
-render = Renderable.render

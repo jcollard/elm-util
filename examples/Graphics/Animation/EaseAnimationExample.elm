@@ -3,6 +3,7 @@ module Graphics.Animation.BasicAnimationExample where
 import Graphics.Collage as Collage
 import Graphics.Path as Path
 import open Graphics.Animation
+import open Graphics.Renderable
 
 square : Renderable
 square = { defaultRenderable |

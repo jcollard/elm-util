@@ -82,7 +82,6 @@ renderable: $(Renderable.js)
 $(Renderable.js): $(Renderable.elm)
 	$(CC) $(FLAGS) $(Renderable.elm)
 
-
 ## Test
 
 Test = $(SRC)/Test

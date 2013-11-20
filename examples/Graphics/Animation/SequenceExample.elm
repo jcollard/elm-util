@@ -3,6 +3,7 @@ module Graphics.Animation.BasicAnimationExample where
 import Graphics.Collage as Collage
 import Graphics.Path as Path
 import open Graphics.Animation
+import open Graphics.Renderable
 
 -- The square does a full rotation every 2 seconds, scales between 1.0
 -- and 2.0 on an interval of 4 seconds and travels around in a square path

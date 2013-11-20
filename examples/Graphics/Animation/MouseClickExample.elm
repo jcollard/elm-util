@@ -5,6 +5,7 @@ import Graphics.Path as Path
 import Mouse
 import Signal
 import open Graphics.Animation
+import open Graphics.Renderable
 
 width = 400
 height = 400
