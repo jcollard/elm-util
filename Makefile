@@ -3,7 +3,7 @@ SRC = src
 TEST = test
 EXAMPLES = examples
 RESOURCES=resources/
-RTS=$(RESOURCES)/elm-runtime.js
+RTS=$(RESOURCES)elm-runtime.js
 BUILD_FLAGS = --make --src-dir=$(SRC)
 FLAGS = $(BUILD_FLAGS) --only-js
 BUILD_EXAMPLE_FLAGS = $(BUILD_FLAGS) --src-dir=$(EXAMPLES)
@@ -13,7 +13,7 @@ BUILD_TEST_FLAGS = $(BUILD_FLAGS) --src-dir=$(TEST)
 
 compile: util graphics test_framework resources
 
-graphics: sprite animation location path renderable
+graphics: sprite animation animationForm location path renderable
 
 all: compile test examples
 
@@ -60,6 +60,17 @@ Animation.elm = $(Animation).elm
 animation: $(Animation.js)
 $(Animation.js): $(Animation.elm)
 	$(CC) $(FLAGS) $(Animation.elm)
+
+## Graphics.Animation.Form
+
+Animation.Form = $(SRC)/Graphics/Animation/Form
+Animation.Form.js = build/$(Animation.Form).js
+Animation.Form.elm = $(Animation.Form).elm
+
+animationForm: $(Animation.Form.js)
+$(Animation.Form.js): $(Animation.Form.elm)
+	$(CC) $(FLAGS) $(Animation.Form.elm)
+
 
 ## Graphics.Location
 
@@ -139,7 +150,7 @@ $(Tests.html): $(Tests.elm) $(AnimationTest.elm) $(Animation.elm) $(LocationTest
 
 
 #easeAnimationExample moveAnimationExample composedAnimationExample
-animationExamples: basicAnimationExample mouseClickExample mouseClickExample2 easeExample loopExample sequenceExample animationExample
+animationExamples: basicAnimationExample mouseClickExample mouseClickExample2 easeExample loopExample sequenceExample animationExample formExample
 
 # Basic Animation Example
 BasicAnimationExample = $(EXAMPLES)/Graphics/Animation/BasicAnimationExample
@@ -186,6 +197,16 @@ AnimationExample.elm = $(AnimationExample).elm
 animationExample: $(AnimationExample.html)
 $(AnimationExample.html): $(AnimationExample.elm) $(Animation.elm)
 	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(AnimationExample.elm)
+
+# Form Example
+FormExample = $(EXAMPLES)/Graphics/Animation/FormExample
+FormExample.html = build/$(FormExample).html
+FormExample.elm = $(FormExample).elm
+
+formExample: $(FormExample.html)
+$(FormExample.html): $(FormExample.elm) $(Form.elm)
+	$(CC) --runtime=../../$(RTS) $(BUILD_EXAMPLE_FLAGS) $(FormExample.elm)
+
 
 
 # Basic Animation Example
@@ -241,5 +262,6 @@ $(ComposedAnimationExample.html): $(ComposedAnimationExample.elm) $(Animation.el
 clean:
 	find . -name "*.elmi" -delete
 	find . -name "*.elmo" -delete
+	find . -name "*.*~" -delete
 	rm build/ -rf
 	rm cache/ -rf

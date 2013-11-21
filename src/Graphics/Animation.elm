@@ -13,6 +13,16 @@ import Util
  -}
 type Animation a = Time -> a
 
+{-|   
+  Given a list of `Animation`s and a `Time`, returns a list of the transformed
+  state of each `Animation` at the specified `Time`.
+ -}
+animateAll : [Animation a] -> Time -> [a]
+animateAll anims t =
+  case anims of
+    [] -> []
+    (a::anims) -> a t :: animateAll anims t
+
 {-|
   A Builder is record used to compose and sequence an Animation.
 
@@ -27,16 +37,21 @@ type Builder a
  = { duration : Time
    , build   : Time -> a -> Animation a
    }
-   
-{-|   
-  Given a list of `Animation`s and a `Time`, returns a list of the transformed
-  state of each `Animation` at the specified `Time`.
+
+{-|
+  Given a transformation function over some state `a` and a duration, create
+  a `Builder` that applies the function over the specified duration.
+
+  A transformation function expects a value from [0,1] representing the
+  percentage of completion of a transformation and an initial state and returns
+  the resulting transformation.
  -}
-animateAll : [Animation a] -> Time -> [a]
-animateAll anims t =
-  case anims of
-    [] -> []
-    (a::anims) -> a t :: animateAll anims t
+builder : (Float -> a -> a) -> Time -> Builder a
+builder animate duration =
+  let build startTime renderable t =
+        if t < startTime then renderable
+        else animate (min 1 (max 0 ((t - startTime)/duration))) renderable
+  in { duration = duration, build = build }
 
 {-|
   Delays an animation by the time specified.
@@ -74,51 +89,6 @@ sequence first second =
  -}
 sequenceMany : [Builder a] -> Builder a
 sequenceMany = Util.foldl1 sequence
-
-
-{-|
-  Oscillates the resulting `Animation` indefinitely. The `resulting` animation 
-  will play forward and then in reverse.
- -}
-oscillate : Builder a -> Builder a
-oscillate toRock =
-  let duration' = round toRock.duration
-      osc n = 
-        let n' = n `mod` (duration'*2)
-        in if n' <= duration' then n' else (duration' - (n' `mod` duration'))
-      build startTime form t =   
-        let t' =
-              if t < startTime then t
-              else startTime + (toFloat <| osc (round (t - startTime)))
-        in toRock.build startTime form t'
-  in {toRock| build <- build, duration <- toRock.duration * 2}
-
-{-|
-  Loops the resulting `Animation` of a `Builder` the specified number of times.
--}
-loopN : Int -> Builder a -> Builder a
-loopN n toLoop =
-  let duration = toLoop.duration*(toFloat n)
-      looping = loop toLoop
-      build startTime form t =
-        let t' = t - startTime
-            loopAnimation = looping.build startTime form
-            animation = toLoop.build startTime form
-        in if t' < duration then loopAnimation t'
-           else animation t'
-  in { duration = duration, build = build }
-                                    
-{-|   
-  Loops the resulting `Animation` indefinitely.
--}
-loop : Builder a -> Builder a
-loop toLoop =
-    let build startTime form t =
-        let t' = 
-              if t < startTime then t
-              else startTime + (toFloat <| ((round (t - startTime)) `mod` (round toLoop.duration)))
-        in toLoop.build startTime form t'
-  in {toLoop| build <- build}
 
 {-|
   Composes two `Builder`s together such that the resulting `Animation`
@@ -166,21 +136,51 @@ animation = rotate 360 <> move (100, 100) <| 2*second
 (<>) : (Time -> Builder a ) -> (Time -> Builder a) -> (Time -> Builder a)
 (<>) first second t = (first t) <*> (second t)
 
+{-|
+  Oscillates the resulting `Animation` indefinitely. The `resulting` animation 
+  will play forward and then in reverse.
+ -}
+oscillate : Builder a -> Builder a
+oscillate toRock =
+  let duration' = round toRock.duration
+      osc n = 
+        let n' = n `mod` (duration'*2)
+        in if n' <= duration' then n' else (duration' - (n' `mod` duration'))
+      build startTime form t =   
+        let t' =
+              if t < startTime then t
+              else startTime + (toFloat <| osc (round (t - startTime)))
+        in toRock.build startTime form t'
+  in {toRock| build <- build, duration <- toRock.duration * 2}
 
 {-|
-  Given a transformation function over some state `a` and a duration, create
-  a `Builder` that applies the function over the specified duration.
-
-  A transformation function expects a value from [0,1] representing the
-  percentage of completion of a transformation and an initial state and returns
-  the resulting transformation.
- -}
-builder : (Float -> a -> a) -> Time -> Builder a
-builder animate duration =
-  let build startTime renderable t =
-        if t < startTime then renderable
-        else animate (min 1 (max 0 ((t - startTime)/duration))) renderable
+  Loops the resulting `Animation` of a `Builder` the specified number of times.
+-}
+loopN : Int -> Builder a -> Builder a
+loopN n toLoop =
+  let duration = toLoop.duration*(toFloat n)
+      looping = loop toLoop
+      build startTime form t =
+        let t' = t - startTime
+            loopAnimation = looping.build startTime form
+            animation = toLoop.build startTime form
+        in if t' < duration then loopAnimation t'
+           else animation t'
   in { duration = duration, build = build }
+                                    
+{-|   
+  Loops the resulting `Animation` indefinitely.
+-}
+loop : Builder a -> Builder a
+loop toLoop =
+    let build startTime form t =
+        let t' = 
+              if t < startTime then t
+              else startTime + (toFloat <| ((round (t - startTime)) `mod` (round toLoop.duration)))
+        in toLoop.build startTime form t'
+  in {toLoop| build <- build}
+
+
 
 ----------------------
 -- Easing Functions --
