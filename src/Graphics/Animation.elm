@@ -184,7 +184,6 @@ loop toLoop =
 
 ----------------------
 -- Easing Functions --
--- By Max Goldstein --
 ----------------------
 
 {-|
