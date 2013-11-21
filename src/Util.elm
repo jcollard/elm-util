@@ -24,3 +24,6 @@ foldl f z0 xs0 =
              [] -> z
              (x::xs) -> lgo (f z x) xs
   in lgo z0 xs0
+
+foldl1 : (a -> a -> a) -> [a] -> a
+foldl1 f (x::xs) = foldl f x xs

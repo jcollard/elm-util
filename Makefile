@@ -11,7 +11,7 @@ TEST_FLAGS = $(FLAGS) --src-dir=$(TEST)
 BUILD_TEST_FLAGS = $(BUILD_FLAGS) --src-dir=$(TEST)
 
 
-compile: graphics test_framework resources
+compile: util graphics test_framework resources
 
 graphics: sprite animation location path renderable
 
@@ -32,6 +32,15 @@ build/$(TEST)/$(RESOURCES): $(RESOURCES)
 examples_resources: build/$(EXAMPLES)/$(RESOURCES)
 build/$(EXAMPLES)/$(RESOURCES): $(RESOURCES)
 	cp $(RESOURCES) build/$(EXAMPLES) -r
+
+## Util
+Util = $(SRC)/Util
+Util.js = build/$(Util).js
+Util.elm = $(Util).elm
+
+util: $(Util.js)
+$(Util.js): $(Util.elm)
+	$(CC) $(FLAGS) $(Util.elm)
 
 ## Graphics.Sprite
 Sprite = $(SRC)/Graphics/Sprite
