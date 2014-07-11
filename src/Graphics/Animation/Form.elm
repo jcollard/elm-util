@@ -2,7 +2,7 @@ module Graphics.Animation.Form(rotate,
                                move,
                                scale) where
 
-import open Graphics.Animation
+import Graphics.Animation (..)
 import Graphics.Collage as Collage
 
 rotate : Float -> Time -> Builder Form

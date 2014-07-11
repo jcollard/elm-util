@@ -3,7 +3,7 @@ module Graphics.Location(Location,
                          distance,
                          totalDistance) where
 
-import open Util
+import Util (..)
 
 {-|
   A Location within a Form

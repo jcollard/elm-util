@@ -7,7 +7,7 @@ module Graphics.Renderable(Renderable,
                            rotate,
                            scale) where
 
-import open Graphics.Animation
+import Graphics.Animation (..)
 import Graphics.Path as Path
 import Graphics.Location as Location
 import Graphics.Collage as Collage
